@@ -250,6 +250,34 @@ body {
     background: linear-gradient(90deg, transparent, #281daa);
     animation: btn-anim1 1s linear infinite;
   }
+
+  .login-box a.olvidar-contra span:nth-child(1) {
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d71c1c);
+    animation: btn-anim1 1s linear infinite;
+  }
+
+  .login-box a.olvidar-contra:hover {
+    background: #d71c1c;
+    color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #d71c1c,
+                0 0 25px #d71c1c,
+                0 0 50px #d71c1c,
+                0 0 100px #d71c1c;
+  }
+
+  .login-box a.olvidar-contra span:nth-child(1) {
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d71c1c);
+    animation: btn-anim1 1s linear infinite;
+  }
   
   @keyframes btn-anim1 {
     0% {
@@ -266,6 +294,16 @@ body {
     width: 2px;
     height: 100%;
     background: linear-gradient(180deg, transparent, #281daa);
+    animation: btn-anim2 1s linear infinite;
+    animation-delay: .25s
+  }
+    
+  .login-box a.olvidar-contra span:nth-child(2) {
+    top: -100%;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, #d71c1c);
     animation: btn-anim2 1s linear infinite;
     animation-delay: .25s
   }
@@ -288,6 +326,15 @@ body {
     animation: btn-anim3 1s linear infinite;
     animation-delay: .5s
   }
+  .login-box a.olvidar-contra span:nth-child(3) {
+    bottom: 0;
+    right: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(270deg, transparent, #d71c1c);
+    animation: btn-anim3 1s linear infinite;
+    animation-delay: .5s
+  }
   
   @keyframes btn-anim3 {
     0% {
@@ -307,6 +354,15 @@ body {
     animation: btn-anim4 1s linear infinite;
     animation-delay: .75s
   }
+  .login-box a.olvidar-contra span:nth-child(4) {
+    bottom: -100%;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(360deg, transparent, #d71c1c);
+    animation: btn-anim4 1s linear infinite;
+    animation-delay: .75s
+  }
   
   @keyframes btn-anim4 {
     0% {
@@ -318,3 +374,9 @@ body {
   }
   
 /* END */
+
+.filtro-padre {
+
+  justify-content: center;
+  margin: 20px;
+}
