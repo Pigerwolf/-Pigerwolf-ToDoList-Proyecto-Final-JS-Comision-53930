@@ -6,7 +6,7 @@
 
 :root {
    --white: #fafafb;
-   --blue-light:#04d4c3;
+   --blue-light:#d71c1c;
    --blue-dark:#2a73c2;
    --green: #2c7b90;
 
@@ -37,7 +37,7 @@ body {
 
 .eliminar {
 
-    background-color: red;
+    background-color:#b0b0b0;
     margin: 90px;
     border-bottom: 4px solid black;
 }
@@ -45,7 +45,7 @@ body {
 .eliminar:hover {
     box-shadow: 0px 0px 5px 3px;
     transform: scale(1.12);
-    background-color: rgba(190, 190, 190, 0.8705882353);
+    background-color: #d71c1c;
     transition: 0.2s;
     transition-duration: 0.2;
 }
@@ -131,7 +131,7 @@ body {
 
 
 .seccion-tarea i:hover {
-    color: var(--blue-light);
+    color:darkgrey;
     cursor: pointer;
 }
 
@@ -438,4 +438,55 @@ body {
 
   justify-content: center;
   margin: 20px;
+}
+
+/* Prueba de Register-Login */
+
+.form-container{
+  width: 500px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 50px
+}
+
+
+form{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+form+p, form p {
+  text-align: center;
+}
+
+input, button{
+  border-radius: 4px;
+  border: unset;
+  padding: 15px 30px;
+  font-size: larger;
+}
+
+button{
+  background-color: #6494ed00;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.error{
+  color: rgb(255, 81, 81);
+}
+
+.escondido{
+  display: none;
+}
+
+.sr-only{
+  position:absolute;
+  left:-10000px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
 }

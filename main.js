@@ -1,212 +1,158 @@
-let fecha = document.querySelector('#fecha')
-let lista = document.querySelector('#lista')
-let elemento = document.querySelector('#elemento')
-let input = document.querySelector('#input')
-let botonEnter = document.querySelector('#boton-enter')
-let check = 'fa-check-circle'
-let uncheck = 'fa-circle'
-let lineThrough = 'line-through'
-let LIST
+let fecha = document.querySelector('#fecha');
+let lista = document.querySelector('#lista');
+let input = document.querySelector('#input');
+let botonEnter = document.querySelector('#boton-enter');
+let botonLimpiarHistorial = document.querySelector('#eliminar-historial');
+let check = 'fa-check-circle';
+let uncheck = 'fa-circle';
+let lineThrough = 'line-through';
+let LIST = [];
 let contadorTareasCompletadas = 0;
+let LISTA_PENDIENTES = [];
+let LISTA_COMPLETADAS = JSON.parse(localStorage.getItem('COMPLETADAS')) || [];
+let id = 0;
 
-let id // para que inicie en 0 cada tarea tendra un id diferente
-       //creacion de fecha actualizada 
-const FECHA = new Date ()
-fecha.innerHTML = FECHA.toLocaleDateString('es-MX',{weekday: 'long', month: 'short', day:'numeric'})
-    // funcion de agregar tarea 
-function agregarTarea( tarea,id,realizado,eliminado) {
-    if(eliminado) {return} 
-    // si existe eliminado es true si no es false 
-    const REALIZADO = realizado ? check : uncheck 
-    // si realizado es verdadero check si no uncheck
-    const LINE = realizado ? lineThrough : '' 
+const FECHA = new Date();
+fecha.innerHTML = FECHA.toLocaleDateString('es-MX', { weekday: 'long', month: 'short', day: 'numeric' });
+
+function agregarTarea(tarea, id, realizado, eliminado, fechaCreacion) {
+    if (eliminado) { return; }
+    const REALIZADO = realizado ? check : uncheck;
+    const LINE = realizado ? lineThrough : '';
+
     const elemento = `
-                        <li id="elemento">
-                        <i class="far ${REALIZADO}" data="realizado" id="${id}"></i>
-                        <p class="text ${LINE}">${tarea}</p>
-                        <i class="fas fa-trash de" data="eliminado" id="${id}"></i> 
-                        </li>
-                    `
-    lista.insertAdjacentHTML("beforeend",elemento)
+        <li data-id="${id}">
+            <div class="task-container">
+                <i class="far ${REALIZADO}" data-realizado="realizado" id="${id}"></i>
+                <p class="text ${LINE}">${tarea}</p>
+                <span class="fecha-creacion">Creada el ${fechaCreacion}</span>
+                <i class="fas fa-trash de" data-eliminado="eliminado" id="${id}"></i> 
+            </div>
+        </li>
+    `;
+
+    lista.insertAdjacentHTML("beforeend", elemento);
+
+    LIST.push({
+        nombre: tarea,
+        id: id,
+        realizado: realizado,
+        eliminado: eliminado,
+        fechaCreacion: fechaCreacion
+    });
 }
-    // funcion de Tarea Realizada 
-function tareaRealizada(element) {
-    element.classList.toggle(check)
-    element.classList.toggle(uncheck)
-    element.parentNode.querySelector('.text').classList.toggle(lineThrough)
-    LIST[element.id].realizado = LIST[element.id].realizado ?false :true 
-    //Si
-    // console.log(LIST)
-    // console.log(LIST[element.id])
-    // console.log(LIST[element.id].realizado)
-}
-function tareaEliminada(element){
-    // console.log(element.parentNode)
-    // console.log(element.parentNode.parentNode)
-    element.parentNode.parentNode.removeChild(element.parentNode)
-    LIST[element.id].eliminado = true
-    console.log(LIST)
-}
-// crear un evento para escuchar el enter y para habilitar el boton 
-botonEnter.addEventListener('click', ()=> {
-    const tarea = input.value
-    if(tarea){
-        agregarTarea(tarea,id,false,false)
-        LIST.push({
-            nombre : tarea,
-            id : id,
-            realizado : false,
-            eliminado : false
-        })
-        localStorage.setItem('TODO',JSON.stringify(LIST))
-        id++
-        input.value = ''
+
+function crearNuevaTarea() {
+    const tarea = input.value;
+
+    if (tarea) {
+        const fechaHoraActual = new Date();
+        const fechaCreacion = `${fechaHoraActual.toLocaleDateString()} ${fechaHoraActual.toLocaleTimeString()}`;
+        agregarTarea(tarea, id, false, false, fechaCreacion);
+        LISTA_PENDIENTES.push({
+            nombre: tarea,
+            id: id,
+            fechaCreacion: fechaCreacion
+        });
+        id++;
+        input.value = '';
+        localStorage.setItem('PENDIENTES', JSON.stringify(LISTA_PENDIENTES));
+    } else {
+        alert("Por favor ingrese una tarea.");
     }
-})
-// Funcion agregar tarea nueva
+}
+
+botonEnter.addEventListener('click', crearNuevaTarea);
+
 document.addEventListener('keyup', function (event) {
-    if (event.key=='Enter'){
-        const tarea = input.value
-        if(tarea) {
-            agregarTarea(tarea,id,false,false)
-        LIST.push({
-            nombre : tarea,
-            id : id,
-            realizado : false,
-            eliminado : false
-        })
-        localStorage.setItem('TODO',JSON.stringify(LIST))
-     
-        input.value = ''
-        id++
-        console.log(LIST)
+    if (event.key == 'Enter') {
+        crearNuevaTarea();
+    }
+});
+
+function cargarTareasPendientes() {
+    const tareasPendientes = JSON.parse(localStorage.getItem('PENDIENTES')) || [];
+    tareasPendientes.forEach(tarea => {
+        agregarTarea(tarea.nombre, tarea.id, false, false, tarea.fechaCreacion);
+    });
+}
+
+function cargarTareasCompletadas() {
+    LISTA_COMPLETADAS.forEach(tarea => {
+        agregarTareaCompletadaAlHistorial(tarea.nombre, tarea.id);
+    });
+}
+
+function mantenerTareasPendientes() {
+    lista.innerHTML = ''; // Limpiar la lista antes de cargar las tareas pendientes
+    cargarTareasPendientes();
+}
+
+function tareaRealizada(element) {
+    const taskId = parseInt(element.parentNode.parentNode.getAttribute('data-id'));
+    const taskIndex = LIST.findIndex(item => item.id === taskId);
+    if (taskIndex !== -1) {
+        element.classList.toggle(check);
+        element.classList.toggle(uncheck);
+        element.parentNode.querySelector('.text').classList.toggle(lineThrough);
+        LIST[taskIndex].realizado = !LIST[taskIndex].realizado;
+        if (LIST[taskIndex].realizado) {
+            agregarTareaCompletadaAlHistorial(LIST[taskIndex].nombre, LIST[taskIndex].id);
+            LISTA_COMPLETADAS.push({
+                nombre: LIST[taskIndex].nombre,
+                id: LIST[taskIndex].id
+            });
+            LIST.splice(taskIndex, 1);
+            element.parentNode.parentNode.remove();
+            localStorage.setItem('PENDIENTES', JSON.stringify(LISTA_PENDIENTES));
+            localStorage.setItem('COMPLETADAS', JSON.stringify(LISTA_COMPLETADAS));
         }
+    } else {
+        console.error('No se encontró la tarea en la lista.');
     }
-})
-// Funcion eliminar Tareas
-lista.addEventListener('click',function(event){
-    const element = event.target 
-    const elementData = element.attributes.data.value
-    console.log(elementData)
-    
-    if(elementData == 'realizado') {
-        tareaRealizada(element)
+}
+
+function tareaEliminada(element) {
+    const taskId = parseInt(element.parentNode.parentNode.getAttribute('data-id'));
+    const taskIndex = LIST.findIndex(item => item.id === taskId);
+
+    if (taskIndex !== -1) {
+        element.parentNode.parentNode.remove();
+        LIST.splice(taskIndex, 1);
+        localStorage.setItem('PENDIENTES', JSON.stringify(LISTA_PENDIENTES));
+    } else {
+        console.error('No se encontró la tarea en la lista.');
     }
-    else if(elementData == 'eliminado') {
-        tareaEliminada(element)
-        console.log("elimnado")
-    }
-    localStorage.setItem('TODO',JSON.stringify(LIST))
-})
-// Función para agregar tarea completada al historial
+}
+
 function agregarTareaCompletadaAlHistorial(tarea, id) {
     const historialLista = document.querySelector('#historial-lista');
-    // Verificar si la tarea ya existe en el historial
-    const existe = document.querySelector(`#historial-lista li[data-id="${id}"]`);
-    if (!existe) {
-        contadorTareasCompletadas++; // Incrementar el contador
-        const historialElemento = `<li data-id="${id}">${contadorTareasCompletadas}. ${tarea}</li>`;
-        historialLista.insertAdjacentHTML("beforeend", historialElemento);
-    }
+    contadorTareasCompletadas++;
+    const historialElemento = `<li data-id="${id}">${contadorTareasCompletadas}. ${tarea}</li>`;
+    historialLista.insertAdjacentHTML("beforeend", historialElemento);
 }
-// Función para reenumerar las tareas en el historial
-function reenumerarTareasEnHistorial() {
-    const tareasEnHistorial = document.querySelectorAll('#historial-lista li');
-    let nuevoContador = 0;
-    tareasEnHistorial.forEach((tarea) => {
-        nuevoContador++;
-        tarea.textContent = `${nuevoContador}. ${tarea.textContent.slice(tarea.textContent.indexOf(' ') + 1)}`;
-    });
-    contadorTareasCompletadas = nuevoContador;
-}
-// Modifica la función tareaRealizada para manejar la eliminación de tareas del historial
-function tareaRealizada(element) {
-    element.classList.toggle(check);
-    element.classList.toggle(uncheck);
-    element.parentNode.querySelector('.text').classList.toggle(lineThrough);
-    const tarea = LIST[element.id];
-    tarea.realizado = !tarea.realizado;
-    // Si la tarea se desmarca como completada, eliminarla del historial si existe
-    if (!tarea.realizado) {
-        const tareaEnHistorial = document.querySelector(`#historial-lista li[data-id="${tarea.id}"]`);
-        if (tareaEnHistorial) {
-            tareaEnHistorial.remove();
-            reenumerarTareasEnHistorial(); // Reenumerar las tareas restantes en el historial
-        }
-    }
-    // Agrega la tarea completada al historial con su id único
-    if (tarea.realizado) {
-        agregarTareaCompletadaAlHistorial(tarea.nombre, tarea.id);
-    }
 
-    localStorage.setItem('TODO', JSON.stringify(LIST));
-}
-// Cuando cargas la lista, también agrega las tareas completadas al historial
-function cargarLista(array) {
-    array.forEach(function(item) {
-        agregarTarea(item.nombre, item.id, item.realizado, item.eliminado);
-        if (item.realizado) {
-            agregarTareaCompletadaAlHistorial(item.nombre);
-        }
-    });
-}
-// Obtener una referencia al botón de eliminar historial
-const botonEliminarHistorial = document.querySelector('#eliminar-historial');
-botonEliminarHistorial.addEventListener('click', function() {
+function limpiarHistorial() {
     const historialLista = document.querySelector('#historial-lista');
     historialLista.innerHTML = '';
     contadorTareasCompletadas = 0;
-    // También puede ser borrar el historial del almacenamiento local si lo deseas
-    // localStorage.removeItem('TODO');
-});
-let data = localStorage.getItem('TODO')
-if(data){
-    LIST = JSON.parse(data)
-    console.log(LIST)
-    id = LIST.length
-    cargarLista(LIST)
-}else {
-    LIST = []
-    id = 0
-}
-function cargarLista(array) {
-    array.forEach(function(item){
-        agregarTarea(item.nombre,item.id,item.realizado,item.eliminado)
-    })
+    LISTA_COMPLETADAS = [];
+    localStorage.removeItem('COMPLETADAS');
 }
 
-/* JS del LOGIN */
+botonLimpiarHistorial.addEventListener('click', limpiarHistorial);
 
-const container = document.getElementById('container');
-const registerBtn = document.getElementById('register');
-const loginBtn = document.getElementById('login');
-
-registerBtn.addEventListener('click', () => {
-    container.classList.add("active");
+lista.addEventListener('click', function(event) {
+    const elementoClicado = event.target;
+    if (elementoClicado.dataset.realizado === 'realizado') {
+        tareaRealizada(elementoClicado);
+    } else if (elementoClicado.dataset.eliminado === 'eliminado') {
+        tareaEliminada(elementoClicado);
+    }
 });
 
-loginBtn.addEventListener('click', () => {
-    container.classList.remove("active");
-});
+// Llamada a la función para cargar y mostrar solo las tareas pendientes
+mantenerTareasPendientes();
 
-/* END */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Llamada a la función para cargar las tareas completadas
+cargarTareasCompletadas();
